@@ -38,7 +38,6 @@ def images(filename):
 
 @post('/category')
 def create_category():
-
 	try:
 		with connection.cursor() as cursor:
 			name = request.POST.get('name')
@@ -57,7 +56,6 @@ def create_category():
 	# 	'MSG': 'Internal Error',
 	# 	'CODE': 500
 	# 	})
-
 	except Exception as e:
 		return json.dumps({
 			'STATUS': 'ERROR',
@@ -75,9 +73,7 @@ def get_categories():
 		return json.dumps({
 			'STATUS': 'SUCCESS',
 			'CATEGORIES': result,
-			'CODE': {
-				200: 'Success',
-			}
+			'CODE':200
 		})
 	except Exception as e:
 		return json.dumps({
@@ -87,25 +83,23 @@ def get_categories():
 		})
 
 
-@get('/category/<id>/products')
-def get_products_by_id(id):
+@delete('/category/<id>')
+def del_category(id):
 	try:
 		with connection.cursor() as cursor:
-			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id='" + id + "';"
+			sql = "DELETE FROM CATEGORIES WHERE id='" + id + "';"
 			cursor.execute(sql)
-			result = cursor.fetchall()
+			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
-				'PRODUCTS': result,
-				'CODE': 200
-			}, default=str)
+				'CODE': 201
+			})
 	except Exception as e:
 		return json.dumps({
 			'STATUS': 'ERROR',
 			'MSG': repr(e),
 			'CODE': 500
 		})
-
 
 @get('/product/<id>')
 def get_product_by_id(id):
@@ -133,7 +127,6 @@ def get_product_by_id(id):
 def get_products():
 	try:
 		with connection.cursor() as cursor:
-
 			sql = "SELECT * FROM PRODUCTS;"
 			cursor.execute(sql)
 			result = cursor.fetchall()
@@ -150,5 +143,26 @@ def get_products():
 			'MSG': repr(e),
 			'CODE': 500
 		})
+
+
+@get('/category/<id>/products')
+def get_products_by_id(id):
+	try:
+		with connection.cursor() as cursor:
+			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id='" + id + "';"
+			cursor.execute(sql)
+			result = cursor.fetchall()
+			return json.dumps({
+				'STATUS': 'SUCCESS',
+				'PRODUCTS': result,
+				'CODE': 200
+			}, default=str)
+	except Exception as e:
+		return json.dumps({
+			'STATUS': 'ERROR',
+			'MSG': repr(e),
+			'CODE': 500
+		})
+
 
 run(host='0.0.0.0', port=argv[1])
