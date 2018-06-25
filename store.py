@@ -2,6 +2,7 @@ from bottle import route, run, template, static_file, get, post, delete, request
 from sys import argv
 import json
 import pymysql
+import datetime
 
 connection = pymysql.connect(host='localhost',
 						  user='root',
@@ -40,22 +41,28 @@ def create_category():
 
 	try:
 		with connection.cursor() as cursor:
-			sql = "INSERT INTO CATEGORIES(name) VALUES();"
+			name = request.POST.get('name')
+			sql = "INSERT INTO CATEGORIES(name) VALUES('" + name + "');"
 			cursor.execute(sql)
-			connection.commit()
 			id = cursor.lastrowid
+			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
 				'CAT_ID': id,
 				'CODE': 201
 			})
+	# except InternalError:
+	# 	return json.dumps({
+	# 	'STATUS': 'ERROR',
+	# 	'MSG': 'Internal Error',
+	# 	'CODE': 500
+	# 	})
+
 	except Exception as e:
 		return json.dumps({
 			'STATUS': 'ERROR',
-			'MSG': repr(e),
-			'CODE': 500
+			'MSG': repr(e)
 		})
-
 
 
 @get('/categories')
@@ -79,37 +86,64 @@ def get_categories():
 			'CODE': 500
 		})
 
-# @get('/category/<id>/products')
-# def get_products_by_id(id):
-# 	return ({
-# 	'STATUS': {
-# 		'SUCCESS': 'categories fetched',
-# 		'ERROR': 'internal error'
-# 		},
-# 		'MSG': 'internal error',
-# 		'PRODUCTS': [],
-# 		'CODE': {
-# 			200: 'Success',
-# 			404: 'category not found',
-# 			500: 'internal error'
-# 		}
-# 	})
+
+@get('/category/<id>/products')
+def get_products_by_id(id):
+	try:
+		with connection.cursor() as cursor:
+			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id='" + id + "';"
+			cursor.execute(sql)
+			result = cursor.fetchall()
+			return json.dumps({
+				'STATUS': 'SUCCESS',
+				'PRODUCTS': result,
+				'CODE': 200
+			}, default=str)
+	except Exception as e:
+		return json.dumps({
+			'STATUS': 'ERROR',
+			'MSG': repr(e),
+			'CODE': 500
+		})
+
+
+@get('/product/<id>')
+def get_product_by_id(id):
+	try:
+		with connection.cursor() as cursor:
+			sql = "SELECT * FROM PRODUCTS WHERE id='" + id + "';"
+			cursor.execute(sql)
+			result = cursor.fetchone()
+			return json.dumps({
+				'STATUS': 'SUCCESS',
+				'PRODUCTS': result,
+				'CODE': {
+				200: 'Success',
+			}
+		}, default=str)
+	except Exception as e:
+		return json.dumps({
+		'STATUS': 'ERROR',
+		'MSG': repr(e),
+		'CODE': 500
+		})
 
 
 @get('/products')
 def get_products():
 	try:
 		with connection.cursor() as cursor:
+
 			sql = "SELECT * FROM PRODUCTS;"
 			cursor.execute(sql)
 			result = cursor.fetchall()
 		return json.dumps({
 			'STATUS': 'SUCCESS',
-			'CATEGORIES': result,
+			'PRODUCTS': result,
 			'CODE': {
 				200: 'Success',
 			}
-		})
+		}, default=str)
 	except Exception as e:
 		return json.dumps({
 			'STATUS': 'ERROR',
