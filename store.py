@@ -3,6 +3,7 @@ from sys import argv
 import json
 import pymysql
 import datetime
+import time
 
 connection = pymysql.connect(host='localhost',
 						  user='root',
@@ -59,25 +60,6 @@ def create_category():
 	except Exception as e:
 		return json.dumps({
 			'STATUS': 'ERROR',
-			'MSG': repr(e)
-		})
-
-
-@get('/categories')
-def get_categories():
-	try:
-		with connection.cursor() as cursor:
-			sql = "SELECT * FROM CATEGORIES;"
-			cursor.execute(sql)
-			result = cursor.fetchall()
-		return json.dumps({
-			'STATUS': 'SUCCESS',
-			'CATEGORIES': result,
-			'CODE':200
-		})
-	except Exception as e:
-		return json.dumps({
-			'STATUS': 'ERROR',
 			'MSG': repr(e),
 			'CODE': 500
 		})
@@ -101,6 +83,61 @@ def del_category(id):
 			'CODE': 500
 		})
 
+
+@get('/categories')
+def get_categories():
+	try:
+		with connection.cursor() as cursor:
+			sql = "SELECT * FROM CATEGORIES;"
+			cursor.execute(sql)
+			result = cursor.fetchall()
+		return json.dumps({
+			'STATUS': 'SUCCESS',
+			'CATEGORIES': result,
+			'CODE':200
+		})
+	except Exception as e:
+		return json.dumps({
+			'STATUS': 'ERROR',
+			'MSG': repr(e),
+			'CODE': 500
+		})
+
+
+@post('/product')
+def add_product():
+	category = request.POST.get('category')
+	price = request.POST.get('price')
+	title = request.POST.get('title')
+	desc = request.POST.get('desc')
+	img_url = request.POST.get('img_url')
+	favorite = request.POST.get('favorite')
+	id = request.POST.get('id')
+	if favorite is None:
+		favorite = 0
+	else:
+		favorite = 1
+	try:
+		with connection.cursor() as cursor:
+			if id:
+				sql = f"UPDATE PRODUCTS SET category='{category}', price={price}, title='{title}', description='{desc}', img_url='{img_url}', favorite={favorite} WHERE id={id}"
+			else:
+				sql = f"INSERT INTO PRODUCTS(category, price, title, description, img_url, favorite, date_created) VALUES('{category}', {price}, '{title}', '{desc}', '{img_url}', {favorite}, {time.strftime('%Y-%m-%d')})"
+			cursor.execute(sql)
+			connection.commit()
+			return json.dumps({
+				'STATUS': 'SUCCESS',
+				'PRODUCT_ID': cursor.lastrowid,
+				'CODE': 201
+			})
+	except Exception as e:
+		return json.dumps({
+		'STATUS': 'ERROR',
+		'MSG': repr(e),
+		'CODE': 500
+		})
+
+
 @get('/product/<id>')
 def get_product_by_id(id):
 	try:
@@ -120,6 +157,25 @@ def get_product_by_id(id):
 		'STATUS': 'ERROR',
 		'MSG': repr(e),
 		'CODE': 500
+		})
+
+
+@delete('/product/<id>')
+def delete_product(id):
+	try:
+		with connection.cursor() as cursor:
+			sql = "DELETE FROM PRODUCTS WHERE id='" + id + "';"
+			cursor.execute(sql)
+			connection.commit()
+			return json.dumps({
+				'STATUS': 'SUCCESS',
+				'CODE': 201
+			})
+	except Exception as e:
+		return json.dumps({
+			'STATUS': 'ERROR',
+			'MSG': repr(e),
+			'CODE': 500
 		})
 
 
@@ -149,7 +205,7 @@ def get_products():
 def get_products_by_id(id):
 	try:
 		with connection.cursor() as cursor:
-			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id='" + id + "';"
+			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id='" + id + "' ORDER BY p.favorite desc, date_created;"
 			cursor.execute(sql)
 			result = cursor.fetchall()
 			return json.dumps({
