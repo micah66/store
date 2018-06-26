@@ -182,7 +182,8 @@ StoreAdmin.bineForms = function(){
 		e.preventDefault()
 		var submittedForm = $(this)
 		var newStoreName = submittedForm.find("input[name='store-name']").val();
-		$.post("/update_store_name", {'storeName': newStoreName}, function(result){
+		var newEmail = submittedForm.find("input[name='owner-email']").val();
+		$.post("/update_store_name", {'storeName': newStoreName, 'email': newEmail}, function(result){
 			if (result['STATUS'] == 'ERROR') {
 				alert(result['MSG'])
 			}

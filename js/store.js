@@ -17,7 +17,7 @@ Store.loadStoreName = () => {
 				alert(result["MSG"]);
 			} else {
 				var storeName = result['STORE_NAME'].name
-				$('header').prepend('<h1>' + storeName + '</h1>')
+				$('header').prepend('<h1 id="store-name">' + storeName + '</h1>')
 			}
 		}
 	})
