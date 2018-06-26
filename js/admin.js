@@ -143,6 +143,7 @@ StoreAdmin.bineForms = function(){
 	var addCategoryForm = $("form#add-category");
 	addCategoryForm.submit(function(e){
 		e.preventDefault();
+		console.log('caterory added');
 		var submittedForm = $(this);
 		var newCatName = submittedForm.find("input[name='name']").val();
 		$.post("/category",{"name":newCatName},function(result){
@@ -185,7 +186,8 @@ StoreAdmin.bineForms = function(){
 			if (result['STATUS'] == 'ERROR') {
 				alert(result['MSG'])
 			}
-		})
+		},'json')
+		return false
 	})
 };
 

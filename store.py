@@ -61,7 +61,7 @@ def update_store_name():
 	try:
 		store_name = request.POST.get('storeName')
 		with connection.cursor() as cursor:
-			sql - "UPDATE STORE_NAME set name='" + store_name + "';"
+			sql = f"UPDATE STORE_NAME set name='{store_name}';"
 			cursor.execute(sql)
 			connection.commit()
 			return json.dumps({
