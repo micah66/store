@@ -175,6 +175,18 @@ StoreAdmin.bineForms = function(){
 		pid = addProductForm.find("input[name='id']").val();
 		StoreAdmin.deleteProduct(clickedBtn, pid);
 	});
+
+	var storeNameForm = $('#store-settings')
+	storeNameForm.submit(function(e) {
+		e.preventDefault()
+		var submittedForm = $(this)
+		var newStoreName = submittedForm.find("input[name='store-name']").val();
+		$.post("/update_store_name", {'storeName': newStoreName}, function(result){
+			if (result['STATUS'] == 'ERROR') {
+				alert(result['MSG'])
+			}
+		})
+	})
 };
 
 StoreAdmin.showAdminPage = function(pageToShow){
@@ -184,7 +196,7 @@ StoreAdmin.showAdminPage = function(pageToShow){
 		var page = $("#" + pageToShow + "-page");
 		$(".admin-page:visible").hide();
 			page.show();
-		
+
 	}
 };
 

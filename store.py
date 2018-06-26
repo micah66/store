@@ -37,18 +37,56 @@ def images(filename):
     return static_file(filename, root='images')
 
 
-@post('/category')
-def create_category():
+@get('/get_store_name')
+def get_store_name():
 	try:
 		with connection.cursor() as cursor:
-			name = request.POST.get('name')
-			sql = "INSERT INTO CATEGORIES(name) VALUES('" + name + "');"
+			sql = f"SELECT name FROM STORE_NAME"
 			cursor.execute(sql)
-			id = cursor.lastrowid
+			result = cursor.fetchone()
+		return json.dumps({
+			'STATUS': 'SUCCESS',
+			'STORE_NAME': result,
+			'CODE': 200
+		})
+	except Exception as e:
+		return json.dumps({
+			'STATUS': 'ERROR',
+			'MSG': repr(e),
+			'CODE': 500
+		})
+
+@post('/update_store_name')
+def update_store_name():
+	try:
+		store_name = request.POST.get('storeName')
+		with connection.cursor() as cursor:
+			sql - "UPDATE STORE_NAME set name='" + store_name + "';"
+			cursor.execute(sql)
 			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
-				'CAT_ID': id,
+				'CODE': 201
+			})
+	except Exception as e:
+		return json.dumps({
+			'STATUS': 'ERROR',
+			'MSG': repr(e),
+			'CODE': 500
+		})
+
+
+@post('/category')
+def create_category():
+	try:
+		name = request.POST.get('name')
+		with connection.cursor() as cursor:
+			sql = "INSERT INTO CATEGORIES(name) VALUES('" + name + "');"
+			cursor.execute(sql)
+			connection.commit()
+			return json.dumps({
+				'STATUS': 'SUCCESS',
+				'CAT_ID': cursor.lastrowid,
 				'CODE': 201
 			})
 	# except InternalError:

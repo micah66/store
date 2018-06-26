@@ -14,6 +14,7 @@
         <nav id="categories" class="menu-btn clickable"><i class="fa fa-bars btn-icon" aria-hidden="true"></i>Manage Categories</nav>
         <nav id="products" class="menu-btn clickable"><i class="fa fa-gift btn-icon" aria-hidden="true"></i>Manage Products</nav>
         <nav id="goto" class="menu-btn clickable"><i class="fa fa-shopping-cart btn-icon" aria-hidden="true"></i>Go to Store</i></nav>
+        <nav id="settings" class="menu-btn clickable"><i class="fa fa-cog btn-icon" aria-hidden="true"></i>Settings</i></nav>
     </header>
     <hr>
     <section id="loading-page" class="admin-page">
@@ -46,6 +47,16 @@
             <button id="delete-product" class="clickable" type="button" ><i class="fa fa-trash-o btn-icon" ></i>Delete Product</button></td></tr>
             </table>
         </form>
+    </section>
+    <section id="settings-page" class="admin-page">
+      <h2>Settings Manager</h2>
+      <form id="store-settings">
+        <label for="store-name">Store Name: </label>
+        <input type="text" name="store-name" id="store-name"><br/>
+        <label for="owner-email">Owner Email: </label>
+        <input type="text" name="owner-email" id="owner-email"><br/>
+        <input type="submit" class="clickable" value="Save settings" />
+      </form>
     </section>
   </body>
 </html>

@@ -2,9 +2,26 @@ var Store = {};
 
 Store.start = function(){
 	$(document).ready(function() {
+		Store.loadStoreName()
 		Store.loadCategories();
 	});
 };
+
+Store.loadStoreName = () => {
+	$.ajax({
+		url: '/get_store_name',
+		type: 'GET',
+		dataType: 'json',
+		success: function(result) {
+			if (result["STATUS"] == "ERROR"){
+				alert(result["MSG"]);
+			} else {
+				var storeName = result['STORE_NAME'].name
+				$('header').prepend('<h1>' + storeName + '</h1>')
+			}
+		}
+	})
+}
 
 Store.loadCategories = function(){
 	$.get("/categories",function(result){
@@ -51,4 +68,3 @@ Store.loadProducts = function(category){
 	},"json");
 };
 Store.start();
-
