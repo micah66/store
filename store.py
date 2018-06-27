@@ -41,7 +41,7 @@ def images(filename):
 def get_store_name():
 	try:
 		with connection.cursor() as cursor:
-			sql = f"SELECT name FROM STORE_NAME"
+			sql = "SELECT name FROM STORE_NAME"
 			cursor.execute(sql)
 			result = cursor.fetchone()
 		return json.dumps({
@@ -62,8 +62,8 @@ def update_store_name():
 		store_name = request.POST.get('storeName')
 		email = request.POST.get('email')
 		with connection.cursor() as cursor:
-			sql = f"UPDATE STORE_NAME set name='{store_name}', email='{email}';"
-			cursor.execute(sql)
+			sql = "UPDATE STORE_NAME set name=%s, email=%s;"
+			cursor.execute(sql, (store_name, email))
 			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
@@ -82,20 +82,14 @@ def create_category():
 	try:
 		name = request.POST.get('name')
 		with connection.cursor() as cursor:
-			sql = "INSERT INTO CATEGORIES(name) VALUES('" + name + "');"
-			cursor.execute(sql)
+			sql = "INSERT INTO CATEGORIES(name) VALUES(%s);"
+			cursor.execute(sql, (name))
 			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
 				'CAT_ID': cursor.lastrowid,
 				'CODE': 201
 			})
-	# except InternalError:
-	# 	return json.dumps({
-	# 	'STATUS': 'ERROR',
-	# 	'MSG': 'Internal Error',
-	# 	'CODE': 500
-	# 	})
 	except Exception as e:
 		return json.dumps({
 			'STATUS': 'ERROR',
@@ -108,8 +102,8 @@ def create_category():
 def del_category(id):
 	try:
 		with connection.cursor() as cursor:
-			sql = "DELETE FROM CATEGORIES WHERE id='" + id + "';"
-			cursor.execute(sql)
+			sql = "DELETE FROM CATEGORIES WHERE id=%s;"
+			cursor.execute(sql, (id))
 			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
@@ -159,10 +153,11 @@ def add_product():
 	try:
 		with connection.cursor() as cursor:
 			if id:
-				sql = f"UPDATE PRODUCTS SET category='{category}', price={price}, title='{title}', description='{desc}', img_url='{img_url}', favorite={favorite} WHERE id={id}"
+				sql = "UPDATE PRODUCTS SET category=%s, price=%s, title=%s, description=%s, img_url=%s, favorite=%s WHERE id=%s"
+				cursor.execute(sql, (category, price, title, desc, img_url, favorite, id))
 			else:
-				sql = f"INSERT INTO PRODUCTS(category, price, title, description, img_url, favorite, date_created) VALUES('{category}', {price}, '{title}', '{desc}', '{img_url}', {favorite}, {time.strftime('%Y-%m-%d')})"
-			cursor.execute(sql)
+				sql = "INSERT INTO PRODUCTS(category, price, title, description, img_url, favorite, date_created) VALUES(%s, %s, %s, %s, %s, %s, %s)"
+				cursor.execute(sql, (category, price, title, desc, img_url, favorite, time.strftime('%Y-%m-%d')))
 			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
@@ -181,8 +176,8 @@ def add_product():
 def get_product_by_id(id):
 	try:
 		with connection.cursor() as cursor:
-			sql = "SELECT * FROM PRODUCTS WHERE id='" + id + "';"
-			cursor.execute(sql)
+			sql = "SELECT * FROM PRODUCTS WHERE id=%s;"
+			cursor.execute(sql, (id))
 			result = cursor.fetchone()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
@@ -203,8 +198,8 @@ def get_product_by_id(id):
 def delete_product(id):
 	try:
 		with connection.cursor() as cursor:
-			sql = "DELETE FROM PRODUCTS WHERE id='" + id + "';"
-			cursor.execute(sql)
+			sql = "DELETE FROM PRODUCTS WHERE id=%s;"
+			cursor.execute(sql, (id))
 			connection.commit()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
@@ -244,8 +239,8 @@ def get_products():
 def get_products_by_id(id):
 	try:
 		with connection.cursor() as cursor:
-			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id='" + id + "' ORDER BY p.favorite desc, date_created;"
-			cursor.execute(sql)
+			sql = "SELECT * FROM CATEGORIES AS c LEFT JOIN PRODUCTS AS p ON c.id = p.category WHERE c.id=%s ORDER BY p.favorite desc, date_created;"
+			cursor.execute(sql, (id))
 			result = cursor.fetchall()
 			return json.dumps({
 				'STATUS': 'SUCCESS',
